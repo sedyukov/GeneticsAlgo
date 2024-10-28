@@ -1,0 +1,131 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class CircleShape {
+  - x: int
+  - y: int
+  - diameter: int
+  - color: Color
+  --
+  + getX(): int
+  + getY(): int
+  + getDiameter(): int
+  + getRadius(): int
+  + setPosition(x: int, y: int): void
+  + draw(Graphics): void
+  + contains(Point): boolean
+}
+
+class Direction {
+  + UP: Direction
+  + DOWN: Direction
+  + LEFT: Direction
+  + RIGHT: Direction
+  --
+  + move(Point, int): Point
+  + Opposite(): Direction
+}
+
+class Individual {
+  - genotype: List<Direction>
+  - fitness: int
+  - collisionCount: int
+  - candidatesForMutation: List<Integer>
+  --
+  + move(int): void
+  + generateRandomGenotype(int): List<Direction>
+  + setFitness(int): void
+}
+
+class Target {
+  - x: int
+  - y: int
+  - diameter: int
+  --
+  + getX(): int
+  + getY(): int
+  + getDiameter(): int
+  + contains(Point): boolean
+  + draw(Graphics): void
+}
+
+class Obstacle {
+  - x: int
+  - y: int
+  - width: int
+  - height: int
+  --
+  + setPosition(int, int): void
+  + getBounds(): Rectangle
+  + contains(Point): boolean
+  + draw(Graphics): void
+}
+
+class ObjectsMatcher {
+  - obstacles: Set<Obstacle>
+  - target: Target
+  - screenWidth: int
+  - screenHeight: int
+  --
+  + canMove(Individual, Direction): boolean
+  + reachedTarget(Individual, Direction): boolean
+  + isCircleCollidingWithRectangle(Point, int, Obstacle): boolean
+  + isCircleCollidingWithCircle(Point, int, Point, int): boolean
+}
+
+class Population {
+  - individuals: List<Individual>
+  - spawnPoint: Point
+  - target: Point
+  --
+  + moveIndividuals(int): boolean
+  + resetPositions(): void
+  + drawIndividuals(Graphics): void
+}
+
+class GeneticAlgorithm {
+  - population: Population
+  - target: Point
+  --
+  + evaluateFitness(): void
+  + generateNextGeneration(): void
+  + crossover(Individual, Individual): Individual
+  + mutate(Individual, int): void
+}
+
+class GeneticAlgorithmGUI {
+  - drawingPanel: JPanel
+  - startButton: JButton
+  - stopButton: JButton
+  - target: Target
+  - obstacles: List<Obstacle>
+  --
+  + startAlgorithm(): void
+  + stopAlgorithm(): void
+  + drawEnvironment(Graphics): void
+}
+
+class Main {
+  + main(String[]): void
+}
+
+CircleShape <|-- Individual
+CircleShape <|-- Target
+
+ObjectsMatcher "1" --> "many" Obstacle : uses
+ObjectsMatcher "1" --> "1" Target : uses
+ObjectsMatcher "1" --> "many" Individual : uses
+
+Population "1" *-- "many" Individual : composition
+Population "1" --> "1" ObjectsMatcher : uses
+
+GeneticAlgorithm "1" *-- "1" Population : composition
+GeneticAlgorithm "1" --> "1" Target : uses
+
+GeneticAlgorithmGUI "1" --> "1" GeneticAlgorithm : uses
+GeneticAlgorithmGUI "1" --> "1" Target : uses
+GeneticAlgorithmGUI "1" --> "many" Obstacle : uses
+
+Main "1" --> "1" GeneticAlgorithmGUI : uses
+
+@enduml
