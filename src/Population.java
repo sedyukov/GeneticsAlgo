@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Population {
@@ -8,30 +7,30 @@ public class Population {
     private final Point spawnPoint;
     private final Point target;
     private ObjectsMatcher obstaclesMatcher;  // Механизм для проверки препятствий и границ
-    private int lastIdx;
+    private int lastId;
 
-    public Population(Point spawnPoint, Point target, ObjectsMatcher obstaclesMatcher, int lastIdx) {
+    public Population(Point spawnPoint, Point target, ObjectsMatcher obstaclesMatcher, int lastId) {
         this.spawnPoint = spawnPoint;
         this.obstaclesMatcher = obstaclesMatcher;
         this.target = target;
-        this.lastIdx = lastIdx;
+        this.lastId = lastId;
         individuals = new ArrayList<>();
     }
     
     public void initIndividuals(int size, int steps) {
     	for (int i = 0; i < size; i++) {
     		Individual individual = new Individual(spawnPoint, steps);
-    		individual.setId(lastIdx + i);
+    		individual.setId(lastId + i);
             individuals.add(individual);
         }
     	
-    	lastIdx += size;
+    	lastId += size;
     }
     
     public void addIndividual(Individual individual) {
     	if (individual.getId() == 0) {
-    		lastIdx++;
-        	individual.setId(lastIdx);
+    		lastId++;
+        	individual.setId(lastId);
     	}
     	
         individuals.add(individual);
@@ -46,8 +45,8 @@ public class Population {
         return individuals;
     }
     
-    public int getLastIdx() {
-    	return lastIdx;
+    public int getLastId() {
+    	return lastId;
     }
 
     // Перемещение всех особей в соответствии с их генотипом на текущем шаге

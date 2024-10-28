@@ -111,7 +111,7 @@ public class GeneticAlgorithm {
     // Генерация следующего поколения с учетом элитизма
     public void generateNextGeneration() {	
         List<Individual> oldIndividuals = population.getIndividuals();
-        Population newPopulation = new Population(spawnPoint, target, obstaclesMatcher, population.getLastIdx());  
+        Population newPopulation = new Population(spawnPoint, target, obstaclesMatcher, population.getLastId());
 
         // Сортировка по приспособленности
         oldIndividuals.sort((ind1, ind2) -> Integer.compare(ind2.getFitness(), ind1.getFitness()));

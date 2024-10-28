@@ -2,51 +2,114 @@
 skinparam classAttributeIconSize 0
 
 class CircleShape {
-  - x: int
-  - y: int
-  - diameter: int
-  - color: Color
+  # x: int
+  # y: int
+  diameter: int {readOnly}
+  color: Color {readOnly}
   --
   + getX(): int
   + getY(): int
-  + getDiameter(): int
   + getRadius(): int
-  + setPosition(x: int, y: int): void
+  + getPosition(): Point
+  + getWidth(): int
+  + getHeight(): int
+  + setPosition(int, int): void
   + draw(Graphics): void
-  + contains(Point): boolean
+  + distance(Point): double
 }
 
 class Direction {
-  + UP: Direction
-  + DOWN: Direction
-  + LEFT: Direction
-  + RIGHT: Direction
+  - dx: int {readOnly}
+  - dy: int {readOnly}
   --
   + move(Point, int): Point
   + Opposite(): Direction
 }
 
+class GeneticAlgorithm {
+  MAX_GENERATIONS: int {readOnly}
+  MAX_STEPS: int {readOnly}
+  ELITE_RATIO: double {readOnly}
+  POPULATION_SIZE: int {readOnly}
+  BONUS_DISTANCE_RATIO: double {readOnly}
+  MUTATION_RATE: double {readOnly}
+  TOURNAMENT_RATIO: double {readOnly}
+  DISTANCE_FACTOR: int {readOnly}
+  COLLISION_PENALTY: int {readOnly}
+  DISTANCE_BONUS: int {readOnly}
+  - random: Random
+  - elitesCount: int
+  - distanceForBonus: double
+  - tournamentParticipants: int
+  - spawnPoint: Point
+  --
+  + getPopulation(): Population
+  + getMaxFitness(): int
+  + updateObstaclesMatcher(ObjectsMatcher): void
+  + updateTarget(Point): void
+  + evaluateFitness(): void
+  + crossover(Individual, Individual): Individual
+  + mutate(Individual, int): void
+  + generateNextGeneration(): void
+  - selectParent(List<Individual>): Individual
+}
+
+class GeneticAlgorithmGUI {
+  serialVersionUID: long {readOnly}
+  - drawingPanel: JPanel
+  - startButton: JButton
+  - skipGenerationsButton: JButton
+  - stopButton: JButton
+  - addObstacleButton: JButton
+  - removeObstacleButton: JButton
+  - resetButton: JButton
+  - generationLabel: JLabel
+  --
+  + startAlgorithm(): void
+  + stopAlgorithm(): void
+  + drawEnvironment(Graphics): void
+}
+
 class Individual {
-  - genotype: List<Direction>
+  DIAMETER: int {readOnly}
   - fitness: int
   - collisionCount: int
   - candidatesForMutation: List<Integer>
+  - id: int
   --
-  + move(int): void
-  + generateRandomGenotype(int): List<Direction>
+  + getId(): int
+  + setId(int): void
+  + getFitness(): int
   + setFitness(int): void
+  + increaseCollisionCount(): void
+  + getCollisionCount(): int
+  + addMutationCandidate(int): void
+  + getMutationCandidates(): List<Integer>
+  + clearCandidatesForMutation(): void
+  + generateRandomGenotype(int): List<Direction>
+  + move(int): void
+  + getGenotype(): List<Direction>
+  + toString(): String
 }
 
-class Target {
-  - x: int
-  - y: int
-  - diameter: int
+class Main {
+  main(String[]): void
+}
+
+class ObjectsMatcher {
+  - obstacles: Set<Obstacle>
+  - target: Target
+  - screenWidth: int
+  - screenHeight: int
+  - stepSize: int
   --
-  + getX(): int
-  + getY(): int
-  + getDiameter(): int
-  + contains(Point): boolean
-  + draw(Graphics): void
+  + canMove(Individual, Direction): boolean
+  + reachedTarget(Individual, Direction): boolean
+  - getNewCenter(Individual, Direction): Point
+  - calculateCenter(Individual): Point
+  - calculateTargetCenter(): Point
+  - isCircleCollidingWithRectangle(Point, int, Obstacle): boolean
+  - isCircleCollidingWithCircle(Point, int, Point, int): boolean
 }
 
 class Obstacle {
@@ -55,58 +118,33 @@ class Obstacle {
   - width: int
   - height: int
   --
+  + getX(): int
+  + getY(): int
   + setPosition(int, int): void
-  + getBounds(): Rectangle
   + contains(Point): boolean
-  + draw(Graphics): void
-}
-
-class ObjectsMatcher {
-  - obstacles: Set<Obstacle>
-  - target: Target
-  - screenWidth: int
-  - screenHeight: int
-  --
-  + canMove(Individual, Direction): boolean
-  + reachedTarget(Individual, Direction): boolean
-  + isCircleCollidingWithRectangle(Point, int, Obstacle): boolean
-  + isCircleCollidingWithCircle(Point, int, Point, int): boolean
+  + getBounds(): Rectangle
+  + Draw(Graphics): void
 }
 
 class Population {
   - individuals: List<Individual>
   - spawnPoint: Point
   - target: Point
+  - lastId: int
   --
+  + initIndividuals(int, int): void
+  + addIndividual(Individual): void
+  + updateObstaclesMatcher(ObjectsMatcher): void
+  + getIndividuals(): List<Individual>
+  + getLastId(): int
   + moveIndividuals(int): boolean
   + resetPositions(): void
   + drawIndividuals(Graphics): void
 }
 
-class GeneticAlgorithm {
-  - population: Population
-  - target: Point
-  --
-  + evaluateFitness(): void
-  + generateNextGeneration(): void
-  + crossover(Individual, Individual): Individual
-  + mutate(Individual, int): void
-}
-
-class GeneticAlgorithmGUI {
-  - drawingPanel: JPanel
-  - startButton: JButton
-  - stopButton: JButton
-  - target: Target
-  - obstacles: List<Obstacle>
-  --
-  + startAlgorithm(): void
-  + stopAlgorithm(): void
-  + drawEnvironment(Graphics): void
-}
-
-class Main {
-  + main(String[]): void
+class Target {
+  + getPosition(): Point
+  + contains(Point): boolean
 }
 
 CircleShape <|-- Individual
@@ -116,10 +154,10 @@ ObjectsMatcher "1" --> "many" Obstacle : uses
 ObjectsMatcher "1" --> "1" Target : uses
 ObjectsMatcher "1" --> "many" Individual : uses
 
-Population "1" *-- "many" Individual : composition
+Population *-- "many" Individual : composition
 Population "1" --> "1" ObjectsMatcher : uses
 
-GeneticAlgorithm "1" *-- "1" Population : composition
+GeneticAlgorithm *-- "1" Population : composition
 GeneticAlgorithm "1" --> "1" Target : uses
 
 GeneticAlgorithmGUI "1" --> "1" GeneticAlgorithm : uses
@@ -127,5 +165,4 @@ GeneticAlgorithmGUI "1" --> "1" Target : uses
 GeneticAlgorithmGUI "1" --> "many" Obstacle : uses
 
 Main "1" --> "1" GeneticAlgorithmGUI : uses
-
 @enduml
